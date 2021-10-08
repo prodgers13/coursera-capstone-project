@@ -1,0 +1,127 @@
+https://www.coursera.org/learn/applied-data-science-capstone/supplement/SDDeN/course-introduction
+As a starting point of almost all data science projects, you need to collect data, as much and relevant as possible.
+You will be collecting data from various sources. After your raw data has been collected, you will need to improve the quality by performing data wrangling. 
+Then you can start exploring the processed data.  We will be your guide as we explore some really interesting real-world datasets together. You'll get to practice your SQL skills as we query the data and gather insights.  
+You'll gain further insights into the data by applying some basic statistical analysis and data visualization, you'll be able to see directly how variables might be related to each other.   
+We'll drill down into finer levels of detail by splitting the data into groups defined by categorical variables or factors in your data.  
+You will be guided to build, evaluate, and refine predictive models for discovering more exciting insights. 
+The final task of this capstone project is to create a presentation that will be developed into stories of all your analysis.
+------------------------
+Project overview
+    SpaceY run by Allon Mask 
+-----------------
+Integration with github 
+    https://github.com/prodgers13/Capstone-Project.git    
+--------------------
+Data Collection Overview
+    Spacex REST API https://api.spacexdata.com/v4/launches/past 
+        url = "https://api.spacexdata.com/v4/launches/past"
+        response = reqeusts.get(url)
+        response.json() # a JSON object is returned 
+        data = pd.json_normalize(response.json()) # convert it to a dataframe 
+    Webscraping wiki web pages with BeautifulSoup 
+--------------------
+Importing notebook into Watson Studio   
+    https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DS0321EN-SkillsNetwork/labs/module_1_L2/jupyter-labs-spacex-data-collection-api.ipynb
+-------------------------------
+Data Wrangling Overview    
+    I was stuck at some point because I could not figure out how to create a new column in the data frame for success or failure. I tried the dummies variable approach, but that wasn't quite right. 
+    Task definition:
+    TASK 4: Create a landing outcome label from Outcome column df.['Outcome']
+Using the Outcome, create a list where the element is zero if the corresponding row in Outcome is in the set bad_outcome; otherwise, it's one. Then assign it to the variable landing_class.
+This is what I came up with. I never understood how to iterate over a data froame. They key must be in the statement
+    for row in df['must be the key to the dataframe']:
+But that failed until I discovered that I had to skip the last one for some reason. These two problems held me up for about 5 hours on Wednesday into Thursday. The solution:
+
+    landing_outcomes = df["Outcome"].value_counts()
+    bad_outcomes=set(landing_outcomes.keys()[[1,3,5,6,7]])
+    landing_class = []
+    for row in df['FlightNumber']-1:
+        if df['Outcome'][row] in bad_outcomes:
+            landing_class.append(0)
+        else:
+            landing_class.append(1)
+-------------------------------
+Exploratory Data Analysis Overview
+    Exploratory Data Analysis is the first step of any data science project. 
+    I would suggest that considering what you'd like to accomplish and which data you want to examine to answer that first. But that's just me.
+    In the lab, you will determine what attributes are correlated with successful landings. The categorical variables will be converted using one hot encoding, preparing the data for a machine learning model that will predict if the first stage will successfully land.
+-----------------------
+Test
+What I created in the notebook:
+    sns.catplot(y="LaunchSite", x="FlightNumber", hue="Class", data=df, aspect = 5)
+    plt.xlabel("Flight Number",fontsize=20)
+    plt.ylabel("Launch Site",fontsize=20)
+    plt.show()    
+a)     
+-------------------------------
+Interactive Visual Analytics and Dashboards
+    Oh shit. I couldn't get this to work last time. And it took forever.
+    Folium and Plotly Dash.
+    Data is Launch Site Geo data with Folium. 
+    How to choose the optimum launch site.
+-------------------------
+Now I'm stuck on trying to pull the lat/long values from the data frame for each of the coordinate sets. Look in the example notebook from Data Visualization with Python course.
+    incidents = folium.map.FeatureGroup()
+    for lat, lng, in zip(df_incidents.Y, df_incidents.X):
+    incidents.add_child(
+        folium.features.CircleMarker(
+            [lat, lng],
+            radius=5, # define how big you want the circle markers to be
+            color='yellow',
+            fill=True,
+            fill_color='blue',
+            fill_opacity=0.6
+        )
+    )
+    sanfran_map.add_child(incidents)
+Figured it out, sort of:
+
+    site_map = folium.Map(location=nasa_coordinate, zoom_start=5)
+    incidents = folium.map.FeatureGroup()
+    for lat,long,site in zip(launch_sites_df.Lat, launch_sites_df.Long, launch_sites_df['Launch Site']):
+        print(lat,long,site)
+        incidents.add_child(
+            folium.features.Circle(
+                [lat, long],
+                radius=2000, # define how big you want the circle markers to be
+                color='yellow',
+                fill=True,
+                fill_color='blue',
+                fill_opacity=0.6,
+            ).add_child(folium.Popup(site))
+        )
+        incidents.add_child(
+            folium.features.Marker(
+                [lat, long],
+                icon=DivIcon(icon_size=(20,20),icon_anchor=(0,0), html='<div style="font-size: 12; color:#d35400;"><b>%s</b></div>' % site, )
+            )
+        )
+site_map.add_child(incidents)
+--------------
+Another way to iterate over a dataframe:
+    df = pd.DataFrame({'c1': [10, 11, 12], 'c2': [100, 110, 120]})
+
+    for index, row in df.iterrows():
+        print(row['c1'], row['c2'])
+    for index, row in spacex_df.iterrows():
+        print(row['Lat'], row['Long'], row['marker_color'])
+        prints a row of three variables by column name specified.
+How someone else did it:
+    site_map.add_child(marker_cluster) # marker_cluster was created as an instance of the Folium object MarkerCluster which has magic powers in maps
+    for index, row in spacex_df.iterrows(): # for every row on spacex_df, assign the index of the frame to index, and assign to row the ability to pick column contents by indexing them by column name.
+        folium.map.Marker(
+            (row['Lat'], row['Long']), # the coordinates in the frame are in columns Lat and Long 
+            icon=folium.Icon(color='white', # I don't know what that does 
+            icon_color= row['marker_color'])).add_to(marker_cluster) # this is the magic of the object MarkerCluster
+
+        site_map.add_child(marker_cluster)
+    site_map 
+Amazing.    
+------------------------
+Write down two coordinates, Vandeberg AFB and Los Alamos
+VBerg: 34.63208 -120.61478
+LAM: 34.74584 -120.17498
+COast: 34.63603 -120.62405
+Lompoc: 34.64168, -120.45067
+Santa Maria: 34.94393, -120.43213
