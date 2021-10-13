@@ -7,6 +7,19 @@ We'll drill down into finer levels of detail by splitting the data into groups d
 You will be guided to build, evaluate, and refine predictive models for discovering more exciting insights. 
 The final task of this capstone project is to create a presentation that will be developed into stories of all your analysis.
 ------------------------
+Now install Anaconda.
+	sh ~/Downloads/Anaconda3-2021.05-Linux-x86_64.sh
+click yes a lot.
+
+Installed anaconda, now I need to start it:
+    source ~/anaconda3/etc/profile.d/conda.sh
+    conda init
+    conda update conda
+    conda create -n notebooks jupyterlab
+    conda activate notebooks
+    jupyter lab
+Works.
+-------------------------------------
 Project overview
     SpaceY run by Allon Mask 
 -----------------
@@ -125,3 +138,105 @@ LAM: 34.74584 -120.17498
 COast: 34.63603 -120.62405
 Lompoc: 34.64168, -120.45067
 Santa Maria: 34.94393, -120.43213
+---------------------------
+Graded Quiz - did pretty well. I would have been lost without seeing how that other guy did it.
+Nishit-purbia IBM-Applied-data-Science-Capstone-project git project is awesome.
+https://github.com/Nishit-purbia/IBM-Applied-data-Science-Capstone-project
+---------------------------------------------
+https://www.coursera.org/learn/applied-data-science-capstone/lecture/NtL9F/predictive-analysis-overview
+--------------------------------------
+----------------------------
+Predictive Analysis Overview     
+    In this lab, we will build a machine learning pipeline to predict if the first stage of the Falcon 9 lands successfully. 
+    This will include: 
+        Preprocessing allowing us to standardize our data
+        Train_test_split allowing us to split our data 
+        We will train the model
+        Grid Search on each algorithm to find the hyperparameters for optimum performance
+        Determine the model with the best accuracy using the training data. You will test:
+            Logistic Regression
+            Support Vector machines
+            Decision Tree Classifier
+            K-nearest neighbors
+        Finally, we will output the confusion matrix.
+
+Grid search - first up is logistic regression grid search
+    parameters ={"C":[0.01,0.1,1],'penalty':['l2'], 'solver':['lbfgs']}
+    lr=LogisticRegression()
+    grid_search = GridSearchCV(lr, parameters, cv=10)
+    logreg_cv = grid_search.fit(X_train, Y_train)        
+
+    print("tuned hyperparameters: ",logreg_cv.best_params_)
+    print("accuracy :",logreg_cv.best_score_)
+
+    logreg_cv.score(X_test,Y_test)
+
+    yhat=logreg_cv.predict(X_test)
+    plot_confusion_matrix(Y_test,yhat)
+-----------------
+Elements Of A Successful Data Findings Report
+    documents, slide show
+    Before you start writing, understand the few important messages, and build your report around those.    
+    outline formats
+        cover page - title of the report, names of authors, their affiliations, and contacts, the name of the institutional publisher (if any), and the date of publication.
+        executive summary - Ok to summarize other parts of the report, but do not include anything that is not discussed in detail elsewhere in the report. why the reader will gain from reading the complete report
+        table of contents 
+        introduction - nature of the analysis, statement of the problem, questions to be answered, the aims of the author, practicality of the work.
+        methodology - data sources, plan for data, algorithms used, what is new about the methods, and others who have done similar work 
+        results - what you learned about orgainizing and analyzing the data - includes charts and graphs 
+        discussion - findings and implications. Maybe recommendations. 
+        conclusion - summary of the findings, any future steps 
+        appendix - things that didn't fit in the report but still important, links to raw data
+------------------------------
+Best Practices For Presenting Your Findings
+    Graphs not too small and are well labeled.         
+    Raw data is only supporting evidence, not the main communicating method
+    Discuss only one point from each chart.
+    If it doesn't support the argument, leave it out of the main report sections. Put it in the appendix or leave it out.
+-----------
+Final project:
+    There are a total of 40 points possible for the final assessment, and you will be graded by your peers, who are also completing this assignment.
+
+    The main grading criteria will be:
+
+        Uploaded the URL of your GitHub repository including all the completed notebooks and Python files (1 pt)
+        Uploaded your completed presentation in PDF format (1 pt)
+        Completed the required Executive Summary slide (1 pt)
+        Completed the required Introduction slide (1 pt)
+        Completed the required data collection and data wrangling methodology related slides (1 pt)
+        Completed the required EDA and interactive visual analytics methodology related slides (3 pts)
+        Completed the required predictive analysis methodology related slides (1 pt)
+        Completed the required EDA with visualization results slides (6 pts)
+        Completed the required EDA with SQL results slides (10 pts)
+        Completed the required interactive map with Folium results slides (3 pts)
+        Completed the required Plotly Dash dashboard results slides (3 pts)
+        Completed the required predictive analysis (classification) results slides (6 pts)
+        Completed the required Conclusion slide (1 pts)
+        Applied your creativity to improve the presentation beyond the template (1 pts)
+        Displayed any innovative insights (1 pts)
+-------------------------
+Key points for the exec summary:
+Outcome meanings:
+    True Ocean means the mission outcome was successfully landed to a specific region of the ocean while 
+    False Ocean means the mission outcome was unsuccessfully landed to a specific region of the ocean. 
+    True RTLS means the mission outcome was successfully landed to a ground pad 
+    False RTLS means the mission outcome was unsuccessfully landed to a ground pad. 
+    True ASDS means the mission outcome was successfully landed to a drone ship 
+    False ASDS means the mission outcome was unsuccessfully landed to a drone ship. 
+    None ASDS and None None these represent a failure to land.
+    Results:
+        True ASDS      41   successfully landed to a drone ship 
+        None None      19   represent a failure to land
+        True RTLS      14   sucessfully landed to a ground pad 
+        False ASDS      6   unsuccessfully landed to a drone ship. 
+        True Ocean      5   successfully landed to a specific region of the ocean
+        False Ocean     2   unsuccessfully landed to a specific region of the ocean
+        None ASDS       2   represent a failure to land
+        False RTLS      1   unsuccessfully landed to a ground pad
+    Class: bad outcomes:  {'False ASDS', 'None None', 'False RTLS', 'None ASDS', 'False Ocean'}
+           good outcomes:  {'True RTLS', 'None ASDS', 'True Ocean', 'True ASDS'}
+        Good:    60
+        Bad:    30
+    Launch successes:
+        true: 131
+        false: 5
